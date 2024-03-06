@@ -15,21 +15,20 @@ public class Move : MonoBehaviour
     Vector3 movement;
     private float horizontal;
     private float vertical;
-    private Vector3 DashDirection;
+    private Vector3 DashDirection; 
 
 
-    public float fallMultiplier = 2.5f;
+    public float fallMultiplier = 2.5f; //중력 가속도
     public LayerMask groundLayer;
     public LayerMask wallLayer;
 
     public int WallJumpDirection;
-    float i;
+    private float existingWallJumpTime;
    
 
     private void Start()
     {
         stats = GetComponent<Stat>();
-
         // Body 게임 오브젝트의 Renderer 컴포넌트 가져오기
         rb = GetComponent<Rigidbody>();
     }
@@ -37,16 +36,11 @@ public class Move : MonoBehaviour
     private void Update()
     {
         // 플레이어 움직임 관련
-
-
-        if (stats.isWallSliding)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, -stats.wallSlideSpeed, rb.velocity.z);
-        }
         InputKey();
         if (!stats.isDash) move();
         RotateAttackArea();
-        if (stats.isWallJump)
+
+        if (stats.isWallJump) //벽 점프 상태일 때
         {
             stats.wallJumpTime -= Time.deltaTime;
             rb.velocity = new Vector3(WallJumpDirection * stats.wallJumpForce, stats.wallJumpForce, 0);
@@ -55,48 +49,45 @@ public class Move : MonoBehaviour
                 StopWallJump(0);
             }
         }
-        if (stats.isTouchingWall && stats.isWallJump && stats.wallJumpTime <= i - 0.05f)
+
+        if (stats.isTouchingWall && stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.05f) 
         {
+            //벽 점프 상태일때 다른 벽에 붙으면 벽 점프 멈춤
             StopWallJump(0);
         }
-        else if (stats.isWallJump && stats.wallJumpTime <= i - 0.15f && horizontal != 0)
+
+        else if (stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.15f && horizontal != 0)
         {
+            //벽 점프 상태일때 움직이면 벽 점프 멈춤
             StopWallJump(1);
         }
     }
 
     private void InputKey()
     {
-        //if (Input.GetButtonDown("Jump") && !stats.isDash && stats.JumpCount != 0 && !stats.isWall) Jump();
-        //if (Input.GetButtonDown("Jump") && !stats.isDash && stats.JumpCount != 0 && stats.isWall) WallJump();
         if (Input.GetButtonDown("Dash") && stats.CanDash && !stats.isDash)
         {
-
             Dash();
         }
+
         horizontal = Input.GetAxisRaw("Horizontal");
         vertical = Input.GetAxisRaw("Vertical");
-
-        stats.isGrounded = Physics.CheckSphere(new Vector3(transform.position.x, transform.position.y - 0.5f, 0), 0.1f, groundLayer);
-
+      
         if (Input.GetKeyDown(KeyCode.Space) && stats.JumpCount != 0 && !stats.isWallSliding)
         {
             Jump();
         }
+
         if (Input.GetKeyDown(KeyCode.Space) && stats.isWallSliding && stats.JumpCount != 0)
         {
             WallJump();
         }
 
-        if (rb.velocity.y < 0)
+        if (rb.velocity.y < 0) // 플레이어가 아래로 떨어지는 중이면 중력 추가
         {
             rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
-            stats.isJump = false;
-        } // 플레이어가 아래로 떨어지는 중이면 중력 추가
-        //else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
-        //{
-        //    rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
-        //}
+            stats.isJump = false; //아래로 떨어지면 점프상태가 풀림
+        } 
 
     }
 
@@ -121,7 +112,7 @@ public class Move : MonoBehaviour
 
         rb.velocity = movement;
     }
-
+    #region 점프
     private void Jump()
     {
         stats.isJump = true;
@@ -129,17 +120,22 @@ public class Move : MonoBehaviour
         rb.AddForce(Vector3.up * stats.jumpForce, ForceMode.Impulse);
         stats.JumpCount--;
     }
+
     private void WallJump()
-    {
-        
-        i = stats.wallJumpTime;
+    {      
+        existingWallJumpTime = stats.wallJumpTime;
+
+        //벽 점프 상태 온
         stats.isWallJump = true;
         stats.isJump = true;
+
         rb.velocity = Vector3.zero;
 
-        WallJumpDirection = stats.isTouchingRightWall ? -1 : 1;
+        WallJumpDirection = stats.isTouchingRightWall ? -1 : 1; 
+
         stats.JumpCount--;
     }
+
     public void StopWallJump(int Case)
     {
         stats.isWallJump = false;
@@ -148,13 +144,15 @@ public class Move : MonoBehaviour
             case 0:
                 rb.velocity = Vector3.zero;
                 break;
-            case 1:
+            case 1: 
                 rb.velocity /= 2;
                 break;
         }
-        stats.wallJumpTime = i;
 
+        stats.wallJumpTime = existingWallJumpTime;
     }
+    #endregion
+
     #region 대쉬
     void Dash()
     {

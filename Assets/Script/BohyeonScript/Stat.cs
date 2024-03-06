@@ -40,7 +40,7 @@ public class Stat : MonoBehaviour
     public bool isTouchingLeftWall;
     public bool isTouchingRightWall;
     public bool isWallSliding;
-    public float wallSlideSpeed = 2f;
+    public float wallSlideSpeed = 2f; // 벽에서 내려오는 속도
     [Space(3f)]
 
     [Header("점프")]
@@ -64,6 +64,12 @@ public class Stat : MonoBehaviour
     {
         isTouchingRightWall = Physics.Raycast(transform.position, transform.right, 0.6f, move.wallLayer);
         isTouchingLeftWall = Physics.Raycast(transform.position, -transform.right, 0.6f, move.wallLayer);
+        isGrounded = Physics.CheckSphere(new Vector3(transform.position.x, transform.position.y - 0.5f, 0), 0.1f, move.groundLayer);
+
+        if (isWallSliding) //벽 슬라이딩 상태일때 떨어지는 속도 계산
+        {
+            rb.velocity = new Vector3(rb.velocity.x, -wallSlideSpeed, rb.velocity.z);
+        }
 
         if (isTouchingLeftWall || isTouchingRightWall)
         {
@@ -74,9 +80,9 @@ public class Stat : MonoBehaviour
             isTouchingWall = false;
         }
 
-        if (!isGrounded && isTouchingWall && rb.velocity.y < 0 && !isDash)
+        if (!isGrounded && isTouchingWall && rb.velocity.y < 0 && !isDash) 
         {
-            isWallSliding = true;
+            isWallSliding = true; //벽에 붙어있고 아래로 떨어지고 있으면 벽 슬라이딩 상태가 됨(벽 슬라이딩 상태에서만 벽 점프 가능)
         }
         else
         {
