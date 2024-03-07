@@ -12,17 +12,17 @@ public class Stat : MonoBehaviour
 
     private Rigidbody rb;
 
-
+    public int Hp;
     public float speed;
-   
-    [Space(20f)]
+    public bool CanControl;
+    [Space(3f)]
 
     [Header("대쉬")]
     public float DashForce;
     public float dashDistance;
     public float dashDuration;
     public float DashCoolTime;
-    [Space(20f)]
+    [Space(3f)]
 
     [Header("플레이어 상태")]
     public bool canControl;
@@ -51,56 +51,53 @@ public class Stat : MonoBehaviour
     public bool isWallJump;
     public float wallJumpForce = 5f;
     public float wallJumpTime;
+    [Space(3f)]
+
+    [Header("가드")]
+    public bool isGuard;
+    public bool CanGuard;
+    public float GuardCool = 5;
+    [Space(3f)]
+
+    [Header("경직")]
+    public bool isSpasticity;
+    [Space(3f)]
+
+    [Header("공격")]
+    public bool isAttack;
+    public bool CanAttack;
+    public bool isHitByOther; //피격당했는가
+    [Space(3f)]
+
+    [Header("무적")]
+    public bool isInvincibility;
 
     [SerializeField] private Transform playerHead;
 
     private void Start()
     {
+        CanGuard = true;
         CanDash = true;
+        CanAttack = true;
         move = GetComponent<Move>();
         rb = GetComponent<Rigidbody>();
     }
     private void Update()
     {
-        isTouchingRightWall = Physics.Raycast(transform.position, transform.right, 0.6f, move.wallLayer);
-        isTouchingLeftWall = Physics.Raycast(transform.position, -transform.right, 0.6f, move.wallLayer);
-        isGrounded = Physics.CheckSphere(new Vector3(transform.position.x, transform.position.y - 0.5f, 0), 0.1f, move.groundLayer);
-
-        if (isWallSliding) //벽 슬라이딩 상태일때 떨어지는 속도 계산
-        {
-            rb.velocity = new Vector3(rb.velocity.x, -wallSlideSpeed, rb.velocity.z);
-        }
-
-        if (isTouchingLeftWall || isTouchingRightWall)
-        {
-            isTouchingWall = true;
-        }
-        else
-        {
-            isTouchingWall = false;
-        }
-
-        if (!isGrounded && isTouchingWall && rb.velocity.y < 0 && !isDash) 
-        {
-            isWallSliding = true; //벽에 붙어있고 아래로 떨어지고 있으면 벽 슬라이딩 상태가 됨(벽 슬라이딩 상태에서만 벽 점프 가능)
-        }
-        else
-        {
-            isWallSliding = false;
-        }
-        ResetJump();
+       
+       // ResetJump();
     }
     private void ResetJump()
     {
         if (isGrounded && JumpCount != 2 && !isJump)
         {
             JumpCount = 2;
-            Debug.Log(2);
+            //Debug.Log(2);
         }
         else if (isTouchingWall && JumpCount != 1 && !isJump)
         {
             JumpCount = 1;
-            Debug.Log(1);
+            //Debug.Log(1);
         }
     }
 }

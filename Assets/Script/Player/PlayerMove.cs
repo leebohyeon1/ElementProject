@@ -50,7 +50,6 @@ public class PlayerMove : NetworkBehaviour
         if (this.HasStateAuthority && !(stats.isDie) && stats.canControl)
         {
             InputKey();
-
             Move();
             RotateAttackArea();
         }

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using UnityEditor;
 using UnityEngine;
 
 public class Move : MonoBehaviour
@@ -36,11 +38,49 @@ public class Move : MonoBehaviour
     private void Update()
     {
         // 플레이어 움직임 관련
-        InputKey();
-        if (!stats.isDash) move();
-        RotateAttackArea();
+        if (stats.CanControl) { InputKey(); }    
+        if (!stats.isDash) { move(); }
+        BoolSet();
+        RotateAttackArea();    
+    }
 
-        if (stats.isWallJump) //벽 점프 상태일 때
+    private void BoolSet()
+    {
+        //벽 인식
+        stats.isTouchingRightWall = Physics.Raycast(transform.position, transform.right, 0.51f, groundLayer); 
+        stats.isTouchingLeftWall = Physics.Raycast(transform.position, -transform.right, 0.51f, groundLayer);
+       
+        if (stats.isTouchingLeftWall || stats.isTouchingRightWall)
+        {
+            stats.isTouchingWall = true;
+        }
+        else
+        {
+            stats.isTouchingWall = false;
+        }
+
+        //땅 인식
+        stats.isGrounded = Physics.CheckSphere(new Vector3(transform.position.x, transform.position.y - 0.5f, 0), 0.1f, groundLayer);
+
+        //벽 슬라이딩 상태일때 떨어지는 속도 계산
+        if (stats.isWallSliding) 
+        {
+            rb.velocity = new Vector3(rb.velocity.x, -stats.wallSlideSpeed, rb.velocity.z);
+        }
+
+       
+        //벽에 붙어있고 아래로 떨어지고 있으면 벽 슬라이딩 상태가 됨(벽 슬라이딩 상태에서만 벽 점프 가능)
+        if (/*!stats.isGrounded &&*/ stats.isTouchingWall /*&& rb.velocity.y < 0 */&& !stats.isDash && horizontal != 0 && !stats.isAttack)
+        {
+            stats.isWallSliding = true; 
+        }
+        else
+        {
+            stats.isWallSliding = false;
+        }
+
+        //벽 점프 상태일 때
+        if (stats.isWallJump) 
         {
             stats.wallJumpTime -= Time.deltaTime;
             rb.velocity = new Vector3(WallJumpDirection * stats.wallJumpForce, stats.wallJumpForce, 0);
@@ -49,17 +89,25 @@ public class Move : MonoBehaviour
                 StopWallJump(0);
             }
         }
-
-        if (stats.isTouchingWall && stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.05f) 
+        if (stats.isTouchingWall && stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.07f)
         {
             //벽 점프 상태일때 다른 벽에 붙으면 벽 점프 멈춤
             StopWallJump(0);
         }
-
-        else if (stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.15f && horizontal != 0)
+        else if (stats.isWallJump && stats.wallJumpTime <= existingWallJumpTime - 0.1f && horizontal != 0)
         {
             //벽 점프 상태일때 움직이면 벽 점프 멈춤
             StopWallJump(1);
+        }
+
+        //컨트롤 못하는 상황
+        if (stats.isGuard || stats.isSpasticity)
+        {
+            stats.CanControl = false;
+        }
+        else
+        {
+            stats.CanControl = true;
         }
     }
 
@@ -73,36 +121,34 @@ public class Move : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
         vertical = Input.GetAxisRaw("Vertical");
       
-        if (Input.GetKeyDown(KeyCode.Space) && stats.JumpCount != 0 && !stats.isWallSliding)
-        {
-            Jump();
-        }
+        //if (Input.GetKeyDown(KeyCode.Space) && stats.JumpCount != 0 && !stats.isWallSliding)
+        //{
+        //    Jump();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.Space) && stats.isWallSliding && stats.JumpCount != 0)
+        if (Input.GetKeyDown(KeyCode.Space) && stats.isWallSliding && stats.JumpCount != 0 )
         {
             WallJump();
         }
-
-        if (rb.velocity.y < 0) // 플레이어가 아래로 떨어지는 중이면 중력 추가
+        else if(Input.GetKeyDown(KeyCode.Space) && stats.JumpCount != 0)
         {
-            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
-            stats.isJump = false; //아래로 떨어지면 점프상태가 풀림
+            Jump();
         } 
 
+        if(Input.GetButtonDown("Guard") && stats.CanGuard)
+        {
+            StartCoroutine(Guard());
+        }
+
+        if( Input.GetMouseButtonDown(0) && stats.CanAttack)
+        {
+            StartCoroutine (Attack());
+            TakeDamage();
+        }
     }
 
     private void move()
     {
-        //  = new Vector3(horizontal, 0f, vertical) * stats.speed * Time.deltaTime;
-        //rb.MovePosition(transform.position + movement);
-        if (stats.isTouchingRightWall && horizontal == 1)
-        {
-            horizontal = 0;
-        }
-        else if (stats.isTouchingLeftWall && horizontal == -1)
-        {
-            horizontal = 0;
-        }
         movement = new Vector3(horizontal, 0, 0);
         float fallspeed = rb.velocity.y;
 
@@ -111,7 +157,15 @@ public class Move : MonoBehaviour
         movement.y = fallspeed; //벽에 붙었을 때 떨어지는 속도
 
         rb.velocity = movement;
+
+
+        if (rb.velocity.y < 0) // 플레이어가 아래로 떨어지는 중이면 중력 추가
+        {
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            stats.isJump = false; //아래로 떨어지면 점프상태가 풀림
+        }
     }
+
     #region 점프
     private void Jump()
     {
@@ -122,18 +176,17 @@ public class Move : MonoBehaviour
     }
 
     private void WallJump()
-    {      
+    {
+        stats.JumpCount--;
+        WallJumpDirection = stats.isTouchingRightWall ? -1 : 1;
         existingWallJumpTime = stats.wallJumpTime;
+        
 
         //벽 점프 상태 온
         stats.isWallJump = true;
         stats.isJump = true;
 
         rb.velocity = Vector3.zero;
-
-        WallJumpDirection = stats.isTouchingRightWall ? -1 : 1; 
-
-        stats.JumpCount--;
     }
 
     public void StopWallJump(int Case)
@@ -156,11 +209,11 @@ public class Move : MonoBehaviour
     #region 대쉬
     void Dash()
     {
+        stats.isWallSliding = false;
         stats.CanDash = false;
         stats.isDash = true;
         // 대쉬 방향 설정
         Vector3 dashDirection = DashDirection - transform.position;
-
         // 대쉬 시작
 
         rb.velocity = dashDirection.normalized * (stats.dashDistance / stats.dashDuration);
@@ -178,6 +231,7 @@ public class Move : MonoBehaviour
         stats.isDash = false;
         StartCoroutine(ReturnDash());
     }
+
     public IEnumerator ReturnDash()
     {
         yield return new WaitForSeconds(stats.DashCoolTime);
@@ -185,6 +239,95 @@ public class Move : MonoBehaviour
     }
     #endregion
 
+    #region 가드
+    private IEnumerator Guard()
+    {
+        Debug.Log("가드");
+        horizontal = 0;
+        Center.SetActive(false);
+        stats.CanGuard = false;
+        stats.isGuard = true;
+        yield return new WaitForSeconds(1);
+        stats.isGuard = false;
+        Center.SetActive(true);
+        if(!stats.isHitByOther)
+         Debug.Log("방어... 그러나 아무 일도 없었다.");
+        StartCoroutine(ReturnGuard(0));
+    }
+
+   private IEnumerator ReturnGuard(int num) 
+    {
+
+        switch (num)
+        { 
+            case 0:
+                yield return new WaitForSeconds(stats.GuardCool);
+                stats.CanGuard = true;
+                break;
+            case 1:
+                StopCoroutine(ReturnGuard(0));
+                yield return new WaitForSeconds(stats.GuardCool /2);         
+                stats.CanGuard = true;
+                stats.isHitByOther = false;
+                break;
+        }
+       
+    }
+    #endregion
+
+    public IEnumerator Spasticity()
+    {
+        Debug.Log("경직");
+        horizontal = 0;
+        stats.isSpasticity = true;
+        yield return new WaitForSeconds(1);
+        stats.isSpasticity = false;
+
+    } //경직
+
+    public IEnumerator Attack()
+    {
+        stats.isAttack = true;
+        stats.CanAttack = false;
+        yield return new WaitForSeconds(0.5f);
+        stats.isAttack = false;
+        yield return new WaitForSeconds(0.5f);
+        stats.CanAttack = true;
+    } //공격 아직 더 해야함
+
+    public IEnumerator ReturnInvincibility()
+    {
+        yield return new WaitForSeconds(2);
+        stats.isInvincibility = false;
+        stats.isHitByOther  = false ;
+    } //무적 리턴
+
+    public void TakeDamage()
+    {
+        if (!stats.isGuard && !stats.isInvincibility) // 데미지를 받는 상태일 때
+        {
+            stats.isHitByOther = true;
+            stats.Hp--;
+            stats.isInvincibility =true;
+            StartCoroutine(ReturnInvincibility());
+        }
+        else if(stats.isGuard) //가드 상태일 때
+        {
+            Debug.Log("방어 성공");
+            stats.isHitByOther = true;
+            stats.isGuard = false;
+            StartCoroutine(ReturnGuard(1));
+        }
+
+        if (stats.Hp >= 1)
+        {
+
+        }
+        else
+        {
+            stats.isDie = true;
+        }
+    }
 
     private void RotateAttackArea()
     {
@@ -199,4 +342,11 @@ public class Move : MonoBehaviour
         Center.transform.rotation = Quaternion.Euler(0f, 0f, rotateDegree);
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(stats.isTouchingWall || stats.isGrounded)
+        {  
+            stats.JumpCount = 2;
+        }
+    }
 }

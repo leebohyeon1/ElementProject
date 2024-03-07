@@ -410,6 +410,7 @@ GameObject:
   - component: {fileID: 1094171929}
   - component: {fileID: 1094171928}
   - component: {fileID: 1094171927}
+  - component: {fileID: 1094171930}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -424,7 +425,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1094171922}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 0f210eb656d0a81468965069b9954da2, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -509,7 +510,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   move: {fileID: 0}
+  Hp: 0
   speed: 6
+  CanControl: 0
   DashForce: 10
   dashDistance: 7
   dashDuration: 0.3
@@ -524,12 +527,16 @@ MonoBehaviour:
   isTouchingRightWall: 0
   isWallSliding: 0
   wallSlideSpeed: 2
+  isJump: 0
   JumpCount: 10000
   jumpForce: 6
   CanWallJump: 0
   isWallJump: 0
-  wallJumpForce: 5
+  wallJumpForce: 7
   wallJumpTime: 0.25
+  isGuard: 0
+  isSpasticity: 0
+  isAttack: 0
   playerHead: {fileID: 0}
 --- !u!114 &1094171928
 MonoBehaviour:
@@ -569,6 +576,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
+--- !u!65 &1094171930
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094171922}
+  m_Material: {fileID: 13400000, guid: 0f210eb656d0a81468965069b9954da2, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1524341802
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,7 +602,7 @@ GameObject:
   - component: {fileID: 1524341805}
   - component: {fileID: 1524341804}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -595,14 +615,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1524341802}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 1.75, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.95, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.6, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 694642014}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &1524341804
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -686,6 +706,10 @@ PrefabInstance:
       propertyPath: NetworkGuid.RawGuidValue.Array.data[1]
       value: 1180877010784909458
       objectReference: {fileID: 0}
+    - target: {fileID: 1084256720665347539, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 1084256721182689306, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
       propertyPath: m_Name
       value: Lobby
@@ -733,6 +757,18 @@ PrefabInstance:
     - target: {fileID: 1084256721182689307, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1084256721185428853, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1084256721204077365, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1084256721926637529, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2059911860023723402, guid: 50e5c6e47a6078b42bcf1dca2adea009, type: 3}
       propertyPath: Flags
