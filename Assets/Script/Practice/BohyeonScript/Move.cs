@@ -141,10 +141,7 @@ public class Move : MonoBehaviour
             StartCoroutine(Guard());
         }
 
-        if( Input.GetMouseButtonDown(0) && stats.CanAttack)
-        {
-            Attack();
-        }
+       
     }
 
     private void move()
@@ -154,7 +151,7 @@ public class Move : MonoBehaviour
 
         movement.x *= stats.speed;
 
-        movement.y = fallspeed; //벽에 붙었을 때 떨어지는 속도
+        movement.y = fallspeed; 
 
         rb.velocity = movement;
 

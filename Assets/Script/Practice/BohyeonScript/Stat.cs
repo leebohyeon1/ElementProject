@@ -82,25 +82,5 @@ public class Stat : MonoBehaviour
         CanGuard = true;
         CanDash = true;
         CanAttack = true;
-        move = GetComponent<Move>();
-        rb = GetComponent<Rigidbody>();
-    }
-    private void Update()
-    {
-       
-       // ResetJump();
-    }
-    private void ResetJump()
-    {
-        if (isGrounded && JumpCount != 2 && !isJump)
-        {
-            JumpCount = 2;
-            //Debug.Log(2);
-        }
-        else if (isTouchingWall && JumpCount != 1 && !isJump)
-        {
-            JumpCount = 1;
-            //Debug.Log(1);
-        }
     }
 }
