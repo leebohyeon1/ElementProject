@@ -212,10 +212,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1524341803}
+  m_Children: []
   m_Father: {fileID: 1094171926}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
@@ -493,6 +492,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1524341803}
   - {fileID: 694642014}
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -513,6 +513,7 @@ MonoBehaviour:
   Hp: 0
   speed: 6
   CanControl: 0
+  fallMultiplier: 2.5
   DashForce: 10
   dashDistance: 7
   dashDuration: 0.3
@@ -535,8 +536,14 @@ MonoBehaviour:
   wallJumpForce: 7
   wallJumpTime: 0.25
   isGuard: 0
+  CanGuard: 0
+  GuardCool: 5
   isSpasticity: 0
   isAttack: 0
+  CanAttack: 0
+  AttackRange: {x: 10, y: 0.5, z: 0.5}
+  isHitByOther: 0
+  isInvincibility: 0
   playerHead: {fileID: 0}
 --- !u!114 &1094171928
 MonoBehaviour:
@@ -552,7 +559,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 0}
   Center: {fileID: 694642013}
-  fallMultiplier: 2.5
+  Weapon: {fileID: 1571977076720390084, guid: dd94636c78c30bc4cb2a34f330d73dd9, type: 3}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -602,7 +609,7 @@ GameObject:
   - component: {fileID: 1524341805}
   - component: {fileID: 1524341804}
   m_Layer: 0
-  m_Name: Weapon
+  m_Name: Guard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -615,12 +622,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1524341802}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.95, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.6, z: 0.5}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.023, y: 0.626, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 694642014}
+  m_Father: {fileID: 1094171926}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &1524341804

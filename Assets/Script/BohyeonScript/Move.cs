@@ -1,3 +1,4 @@
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -9,7 +10,7 @@ public class Move : MonoBehaviour
 {
     [SerializeField] private Stat stats;
     public GameObject Center;
-
+    public GameObject Weapon;
     // #. 컴포넌트 관련 변수
     private Rigidbody rb;
 
@@ -20,7 +21,6 @@ public class Move : MonoBehaviour
     private Vector3 DashDirection; 
 
 
-    public float fallMultiplier = 2.5f; //중력 가속도
     public LayerMask groundLayer;
     public LayerMask wallLayer;
 
@@ -49,7 +49,8 @@ public class Move : MonoBehaviour
         //벽 인식
         stats.isTouchingRightWall = Physics.Raycast(transform.position, transform.right, 0.51f, groundLayer); 
         stats.isTouchingLeftWall = Physics.Raycast(transform.position, -transform.right, 0.51f, groundLayer);
-       
+
+
         if (stats.isTouchingLeftWall || stats.isTouchingRightWall)
         {
             stats.isTouchingWall = true;
@@ -69,8 +70,8 @@ public class Move : MonoBehaviour
         }
 
        
-        //벽에 붙어있고 아래로 떨어지고 있으면 벽 슬라이딩 상태가 됨(벽 슬라이딩 상태에서만 벽 점프 가능)
-        if (/*!stats.isGrounded &&*/ stats.isTouchingWall /*&& rb.velocity.y < 0 */&& !stats.isDash && horizontal != 0 && !stats.isAttack)
+        //벽에 붙어있고 벽 방향으로 키 입력 시 벽 슬라이딩 상태가 됨(벽 슬라이딩 상태에서만 벽 점프 가능)
+        if (/*!stats.isGrounded &&*/ stats.isTouchingWall /*&& rb.velocity.y < 0 */&& !stats.isDash && horizontal == -WallJumpDirection && !stats.isAttack)
         {
             stats.isWallSliding = true; 
         }
@@ -142,8 +143,7 @@ public class Move : MonoBehaviour
 
         if( Input.GetMouseButtonDown(0) && stats.CanAttack)
         {
-            StartCoroutine (Attack());
-            TakeDamage();
+            Attack();
         }
     }
 
@@ -161,7 +161,7 @@ public class Move : MonoBehaviour
 
         if (rb.velocity.y < 0) // 플레이어가 아래로 떨어지는 중이면 중력 추가
         {
-            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            rb.velocity += Vector3.up * Physics.gravity.y * (stats.fallMultiplier - 1) * Time.deltaTime;
             stats.isJump = false; //아래로 떨어지면 점프상태가 풀림
         }
     }
@@ -178,7 +178,7 @@ public class Move : MonoBehaviour
     private void WallJump()
     {
         stats.JumpCount--;
-        WallJumpDirection = stats.isTouchingRightWall ? -1 : 1;
+       
         existingWallJumpTime = stats.wallJumpTime;
         
 
@@ -244,13 +244,13 @@ public class Move : MonoBehaviour
     {
         Debug.Log("가드");
         horizontal = 0;
-        Center.SetActive(false);
+        Center.transform.parent.GetChild(0).gameObject.SetActive(false);
         stats.CanGuard = false;
         stats.isGuard = true;
         yield return new WaitForSeconds(1);
         stats.isGuard = false;
-        Center.SetActive(true);
-        if(!stats.isHitByOther)
+        Center.transform.parent.GetChild(0).gameObject.SetActive(true);
+        if (!stats.isHitByOther)
          Debug.Log("방어... 그러나 아무 일도 없었다.");
         StartCoroutine(ReturnGuard(0));
     }
@@ -285,16 +285,26 @@ public class Move : MonoBehaviour
 
     } //경직
 
-    public IEnumerator Attack()
+    public void Attack()
     {
         stats.isAttack = true;
         stats.CanAttack = false;
-        yield return new WaitForSeconds(0.5f);
+        //NetworkObject attackArea = runner.Spawn(AttackAreaPrefab, SimpleAttackPosition.position, SimpleAttackPosition.rotation);
+        GameObject weapon = Instantiate(Weapon,Center.transform);
+        weapon.transform.localScale = stats.AttackRange;
+        Invoke("EndAttack", 0.2f);
+    } 
+    public void EndAttack() //애니메이션이 끝나면 넣으면 됨 
+    {
         stats.isAttack = false;
-        yield return new WaitForSeconds(0.5f);
+        
+        StartCoroutine(ReturnAttack());
+    }
+    public IEnumerator ReturnAttack()
+    {
+        yield return new WaitForSeconds(1);
         stats.CanAttack = true;
-    } //공격 아직 더 해야함
-
+    }
     public IEnumerator ReturnInvincibility()
     {
         yield return new WaitForSeconds(2);
@@ -339,13 +349,17 @@ public class Move : MonoBehaviour
         float dy = target.y - oPosition.y;
         float dx = target.x - oPosition.x;
         float rotateDegree = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
-        Center.transform.rotation = Quaternion.Euler(0f, 0f, rotateDegree);
+        if (!stats.isAttack)
+        {
+            Center.transform.rotation = Quaternion.Euler(0f, 0f, rotateDegree);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if(stats.isTouchingWall || stats.isGrounded)
-        {  
+        {
+            WallJumpDirection = stats.isTouchingRightWall ? -1 : 1;
             stats.JumpCount = 2;
         }
     }

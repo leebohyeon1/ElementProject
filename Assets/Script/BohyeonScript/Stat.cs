@@ -15,6 +15,8 @@ public class Stat : MonoBehaviour
     public int Hp;
     public float speed;
     public bool CanControl;
+
+    public float fallMultiplier = 2.5f; //중력 가속도
     [Space(3f)]
 
     [Header("대쉬")]
@@ -66,6 +68,7 @@ public class Stat : MonoBehaviour
     [Header("공격")]
     public bool isAttack;
     public bool CanAttack;
+    public Vector3 AttackRange;
     public bool isHitByOther; //피격당했는가
     [Space(3f)]
 
