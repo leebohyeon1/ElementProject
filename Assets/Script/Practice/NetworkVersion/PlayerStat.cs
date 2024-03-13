@@ -1,12 +1,14 @@
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerStat : MonoBehaviour
+public class PlayerStat : NetworkBehaviour
 {
-    public static PlayerStat instance;
-
-   
+    public bool CanControl;
+    public bool isDead;
+    public float HP;
+    [Space(3f)]
 
     [Header("이동")]
     public float PlayerSpeed = 2f;
@@ -35,6 +37,8 @@ public class PlayerStat : MonoBehaviour
     [Header("공격")]
     public bool isAttack;
     public bool CanAttack;
+    [Networked]
+    public Vector3 AttackScale { get; set; }
     [Space(3f)]
 
     [Header("지형 인식")]
@@ -50,10 +54,15 @@ public class PlayerStat : MonoBehaviour
     public int WallJumpDirection;
     
 
-    void Awake()
+    void Start()
     {
-        CanDash = true;
-        CanAttack = true;
+        if (this.HasStateAuthority)
+        {
+            CanControl = true;
+            CanDash = true;
+            CanAttack = true;
+            HP = 2;
+        }
     }
 
     // Update is called once per frame
@@ -61,4 +70,5 @@ public class PlayerStat : MonoBehaviour
     {
         
     }
+
 }

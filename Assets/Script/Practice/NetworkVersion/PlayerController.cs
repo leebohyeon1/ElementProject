@@ -12,10 +12,11 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     private Vector3 PlayerVelocity;
-    private float horizontal;
+    public float horizontal;
     private float existingWallJumpTime;
-
     public GameObject Center;
+
+    public GameObject AttackPrefab;
     public LayerMask groundLayer;
 
     private void Awake()
@@ -26,22 +27,41 @@ public class PlayerController : NetworkBehaviour
 
     void Update()
     {
-        InputKey();
-       
+        if (Stat.CanControl && HasStateAuthority)
+        {
+            InputKey();
+            Change();
+
+        }
     }
 
+    public void Change()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            a = !a;
+         
+        }
+    }
+    [Networked]
+    public bool a {  get; set; }    
     public override void FixedUpdateNetwork()
     {
         if (HasStateAuthority == false)
         {
             return;
         }
-        if (!Stat.isDash) move();
-        RotateAttackArea();
-        BoolSet();
+        if (Stat.CanControl)
+        {
+            if (!Stat.isDash) move();
+            RotateAttackArea();
+            BoolSet();
+        }
+      
+        //if (attack != null)
+        //attack.transform.localScale = Stat.AttackScale;
     }
-
-    private void InputKey()
+     private void InputKey()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
 
@@ -55,8 +75,10 @@ public class PlayerController : NetworkBehaviour
         }     
         
         if (Input.GetButtonDown("Dash") && Stat.CanDash && !Stat.isDash)
+
         {
             Dash();
+
         }
 
         if (Input.GetMouseButtonDown(0) && Stat.CanAttack)
@@ -116,8 +138,14 @@ public class PlayerController : NetworkBehaviour
             //벽 점프 상태일때 움직이면 벽 점프 멈춤
             StopWallJump(1);
         }
+
+        if(Stat.isDead)
+        {
+            Stat.CanControl = false;
+        }
+  
     }
-    private void move()
+    public void move()
     {
         PlayerVelocity = new Vector3(horizontal, 0, 0) * Stat.PlayerSpeed * Runner.DeltaTime;
         float fallspeed = rb.velocity.y;
@@ -133,7 +161,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     #region Jump
-    private void Jump()
+    public void Jump()
     {
         Stat.isJump = true;
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
@@ -141,7 +169,7 @@ public class PlayerController : NetworkBehaviour
         Stat.JumpCount--;
     }
 
-    private void WallJump()
+    public void WallJump()
     {
         Debug.Log("벽 점프");
         Stat.JumpCount--;
@@ -173,7 +201,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Dash
-    void Dash()
+    public void Dash()
     {
         Stat.isWallSliding = false;
         Stat.CanDash = false;
@@ -206,6 +234,8 @@ public class PlayerController : NetworkBehaviour
     }
     #endregion
 
+    #region Attack
+    NetworkObject attack;
     public void Attack()
     {
         Stat.isAttack = true;
@@ -213,12 +243,15 @@ public class PlayerController : NetworkBehaviour
         //NetworkObject attackArea = runner.Spawn(AttackAreaPrefab, SimpleAttackPosition.position, SimpleAttackPosition.rotation);
         //GameObject weapon = Instantiate(Weapon, Center.transform);
         //weapon.transform.localScale = Stat.AttackRange;
-        Invoke("EndAttack", 0.2f);
+
+        attack = Runner.Spawn(AttackPrefab, Center.transform.GetChild(0).transform.position, Center.transform.rotation);
+       
+        Invoke("EndAttack", 0.05f);
     }
     public void EndAttack() //애니메이션이 끝나면 넣으면 됨 
     {
         Stat.isAttack = false;
-
+        Runner.Despawn(attack);
         StartCoroutine(ReturnAttack());
     }
     public IEnumerator ReturnAttack()
@@ -226,7 +259,19 @@ public class PlayerController : NetworkBehaviour
         yield return new WaitForSeconds(1);
         Stat.CanAttack = true;
     }
+    #endregion
 
+    public void TakeDamage()
+    {
+        if(Stat.isDead) return;
+
+        Stat.HP --;
+
+        if(Stat.HP <= 0 )
+        {
+            Stat.isDead = true;
+        }
+    }
     private void RotateAttackArea()
     {
         Vector3 mPosition = Input.mousePosition; //마우스 좌표 저장
@@ -240,8 +285,12 @@ public class PlayerController : NetworkBehaviour
         if (!Stat.isAttack)
         {
             Center.transform.rotation = Quaternion.Euler(0f, 0f, rotateDegree);
+           
         }
+        
     }
+
+    
     private void OnCollisionEnter(Collision collision)
     {
         if (Stat.isTouchingWall || Stat.isGrounded)
