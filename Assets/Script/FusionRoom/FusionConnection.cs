@@ -258,7 +258,7 @@ namespace HeoWeb.Fusion
         {
             if (playMode == PlayMode.PLAY)
             {
-                if (playerStats_1.isDie || playerStats_2.isDie)
+                if (playerStats_1.isDead || playerStats_2.isDead)
                 {
                     playMode = PlayMode.LOADING;
 
@@ -270,8 +270,8 @@ namespace HeoWeb.Fusion
             {
                 playMode = PlayMode.TURN;
 
-                if (playerStats_1.isDie) socrePlayer_2++;
-                if (playerStats_2.isDie) socrePlayer_1++;
+                if (playerStats_1.isDead) socrePlayer_2++;
+                if (playerStats_2.isDead) socrePlayer_1++;
                 canvasGameScript.ScoreBoardUpdate();
 
                 if(socrePlayer_1 >= 3 || socrePlayer_2 >= 3)
@@ -391,21 +391,21 @@ namespace HeoWeb.Fusion
         }
         IEnumerator SetPlayerReset__()
         {
-            playerStats_1.canControl = false;
-            playerStats_2.canControl = false;
+            playerStats_1.CanControl = false;
+            playerStats_2.CanControl = false;
 
             yield return new WaitForSeconds(2f);
 
             playerStats_1.hp = 2;
-            playerStats_1.isDie = false;
+            playerStats_1.isDead = false;
 
             playerStats_2.hp = 2;
-            playerStats_2.isDie = false;
+            playerStats_2.isDead = false;
 
             yield return new WaitForSeconds(1f);
 
-            playerStats_1.canControl = true;
-            playerStats_2.canControl = true;
+            playerStats_1.CanControl = true;
+            playerStats_2.CanControl = true;
 
             playMode = PlayMode.PLAY;
         }

@@ -367,9 +367,12 @@ MonoBehaviour:
   _interpolationDataSource: 0
   runner: {fileID: 0}
   stats: {fileID: 7790312828524470654}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  Center: {fileID: 2391835647668319090}
   AttackAreaPrefab: {fileID: 8842031032277393301, guid: 7039ab8914366e745a6c1a9c40043949, type: 3}
   SimpleAttackPosition: {fileID: 4233420928901488837}
-  Center: {fileID: 2391835647668319090}
   Body: {fileID: 3925404827905798916}
 --- !u!114 &7790312828524470654
 MonoBehaviour:
@@ -391,10 +394,39 @@ MonoBehaviour:
   _hatIndex: 0
   playerNameLabel: {fileID: 1154060973}
   hp: 2
-  speed: 60
-  jumpForce: 20
-  canControl: 1
-  isDie: 0
+  CanControl: 0
+  isDead: 0
+  isPlayer: 0
+  PlayerSpeed: 300
+  fallMultiplier: 2.5
+  isJump: 0
+  isWallJump: 0
+  JumpCount: 2
+  JumpForce: 6
+  WallJumpTime: 0.3
+  WallJumpForce: 7
+  DashDirection: {x: 0, y: 0, z: 0}
+  CanDash: 0
+  isDash: 0
+  DashForce: 8
+  dashDistance: 5.5
+  dashDuration: 0.2
+  DashCoolTime: 2
+  isAttack: 0
+  CanAttack: 0
+  HaveSkill_ID: 
+  isGuard: 0
+  CanGuard: 0
+  GuardCool: 0
+  isHitByOtherInGuard: 0
+  isSpasticity: 0
+  isTouchingWall: 0
+  isTouchingRightWall: 0
+  isTouchingLeftWall: 0
+  isGrounded: 0
+  isWallSliding: 0
+  WallSlideSpeed: 2
+  WallJumpDirection: 0
   playerHead: {fileID: 7039219072985073578}
 --- !u!54 &3925404829148692937
 Rigidbody:
@@ -410,7 +442,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 88
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!135 &3925404829148692938
 SphereCollider:
@@ -419,11 +451,11 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3925404829148692949}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 0f210eb656d0a81468965069b9954da2, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.45
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3925404829148692940
 MonoBehaviour:

@@ -139,9 +139,10 @@ public class Move : MonoBehaviour
         if(Input.GetButtonDown("Guard") && stats.CanGuard)
         {
             StartCoroutine(Guard());
+
         }
 
-       
+
     }
 
     private void move()

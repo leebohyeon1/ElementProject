@@ -11,14 +11,13 @@ public class PlayerController : NetworkBehaviour
     private PlayerStat Stat;
     #endregion
 
-    private Vector3 PlayerVelocity;
     public float horizontal;
     private float existingWallJumpTime;
     public GameObject Center;
 
     public GameObject AttackPrefab;
     public LayerMask groundLayer;
-
+    GameObject aaa;
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -30,21 +29,8 @@ public class PlayerController : NetworkBehaviour
         if (Stat.CanControl && HasStateAuthority)
         {
             InputKey();
-            Change();
-
         }
     }
-
-    public void Change()
-    {
-        if (Input.GetMouseButtonDown(1))
-        {
-            a = !a;
-         
-        }
-    }
-    [Networked]
-    public bool a {  get; set; }    
     public override void FixedUpdateNetwork()
     {
         if (HasStateAuthority == false)
@@ -147,7 +133,7 @@ public class PlayerController : NetworkBehaviour
     }
     public void move()
     {
-        PlayerVelocity = new Vector3(horizontal, 0, 0) * Stat.PlayerSpeed * Runner.DeltaTime;
+        Vector3 PlayerVelocity = new Vector3(horizontal, 0, 0) * Stat.PlayerSpeed * Runner.DeltaTime;
         float fallspeed = rb.velocity.y;
 
         PlayerVelocity.y = fallspeed; 
@@ -155,7 +141,7 @@ public class PlayerController : NetworkBehaviour
 
         if (rb.velocity.y < 0) // 플레이어가 아래로 떨어지는 중이면 중력 추가
         {
-           rb.velocity += Vector3.up * Physics.gravity.y * (Stat.fallMultiplier - 1) * Time.deltaTime;
+           rb.velocity += Vector3.up * Physics.gravity.y * (Stat.fallMultiplier - 1) * Runner.DeltaTime;
            Stat.isJump = false; //아래로 떨어지면 점프 상태가 풀림
         }
     }
@@ -243,9 +229,10 @@ public class PlayerController : NetworkBehaviour
         //NetworkObject attackArea = runner.Spawn(AttackAreaPrefab, SimpleAttackPosition.position, SimpleAttackPosition.rotation);
         //GameObject weapon = Instantiate(Weapon, Center.transform);
         //weapon.transform.localScale = Stat.AttackRange;
-
-        attack = Runner.Spawn(AttackPrefab, Center.transform.GetChild(0).transform.position, Center.transform.rotation);
-       
+        aaa =AttackPrefab;
+        aaa.transform.localScale = Stat.AttackScale;
+        attack = Runner.Spawn(aaa, Center.transform.GetChild(0).transform.position, Center.transform.rotation);
+      // attack.transform.localScale = new Vector3(3,1,1);
         Invoke("EndAttack", 0.05f);
     }
     public void EndAttack() //애니메이션이 끝나면 넣으면 됨 
