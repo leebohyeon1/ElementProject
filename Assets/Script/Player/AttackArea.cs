@@ -7,16 +7,16 @@ public class AttackArea : NetworkBehaviour
 {
     private bool bTrigger = false;
 
-    public PlayerMove player;
-    public PlayerStats stats;
+    //public PlayerMove player;
+    //public PlayerStats stats;
 
-    public PlayerMove Player { get => player; set => player = value; }
-    public PlayerStats Stats { get => stats; set => stats = value; }
+    //public PlayerMove Player { get => player; set => player = value; }
+    //public PlayerStats Stats { get => stats; set => stats = value; }
 
 
     private void Awake()
     {
-       //Destroy(gameObject,0.05f);
+       Destroy(gameObject,0.05f);
     }
 
     private void OnTriggerEnter(Collider other)

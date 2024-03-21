@@ -325,6 +325,7 @@ GameObject:
   - component: {fileID: 3925404829148692950}
   - component: {fileID: 3925404829148692951}
   - component: {fileID: 7790312828524470654}
+  - component: {fileID: 9087836565909534805}
   - component: {fileID: 3925404829148692937}
   - component: {fileID: 3925404829148692938}
   - component: {fileID: 3925404829148692940}
@@ -396,7 +397,6 @@ MonoBehaviour:
   hp: 2
   CanControl: 0
   isDead: 0
-  isPlayer: 0
   PlayerSpeed: 300
   fallMultiplier: 2.5
   isJump: 0
@@ -428,6 +428,18 @@ MonoBehaviour:
   WallSlideSpeed: 2
   WallJumpDirection: 0
   playerHead: {fileID: 7039219072985073578}
+--- !u!114 &9087836565909534805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3925404829148692949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 965a23c6516b96d4589805c4ce717ddb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &3925404829148692937
 Rigidbody:
   m_ObjectHideFlags: 0

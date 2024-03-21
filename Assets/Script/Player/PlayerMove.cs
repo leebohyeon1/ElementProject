@@ -288,8 +288,8 @@ public class PlayerMove : NetworkBehaviour
     {
         stats.isAttack = true;
         stats.CanAttack = false;
-        this.AttackAreaPrefab.GetComponent<AttackArea>().Player = Runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerMove>();
-        this.AttackAreaPrefab.GetComponent<AttackArea>().Stats = Runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>();
+        //this.AttackAreaPrefab.GetComponent<AttackArea>().Player = Runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerMove>();
+        //this.AttackAreaPrefab.GetComponent<AttackArea>().Stats = Runner.GetPlayerObject(runner.LocalPlayer).GetComponent<PlayerStats>();
         NetworkObject attackArea = runner.Spawn(AttackAreaPrefab, SimpleAttackPosition.position, SimpleAttackPosition.rotation);
 
          Invoke("EndAttack", 0.05f);
