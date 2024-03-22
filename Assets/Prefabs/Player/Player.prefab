@@ -440,6 +440,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 965a23c6516b96d4589805c4ce717ddb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSkills:
+  - {fileID: 0}
+  - {fileID: 0}
+  SkillIndex: 0
 --- !u!54 &3925404829148692937
 Rigidbody:
   m_ObjectHideFlags: 0

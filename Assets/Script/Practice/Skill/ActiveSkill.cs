@@ -5,14 +5,15 @@ using UnityEngine;
 public class ActiveSkill : MonoBehaviour
 {
     //public SkillManager Skillmanager;
-    public Skill[] playerSkills = new Skill[2];
+    public Skill[] playerSkills;
     public int SkillIndex;
 
     void Start()
     {
         //Skillmanager = FindObjectOfType<SkillManager>();
         Debug.Log(playerSkills.Length);
-        playerSkills = SkillManager.instance.GetRandomSkills(playerSkills.Length +1);
+
+        playerSkills = SkillManager.instance.GetRandomSkills(2);
     }
 
     // Update is called once per frame
@@ -23,10 +24,10 @@ public class ActiveSkill : MonoBehaviour
             playerSkills[SkillIndex].Activate(gameObject);
         }
 
-        float wheelInput = Input.GetAxis("Mouse ScrollWheel"); 
+        float wheelInput = Input.GetAxis("Mouse ScrollWheel");
         if (wheelInput > 0)
-        {            
-            if (SkillIndex >= 2)
+        {
+            if (SkillIndex >= 1)
             {
                 SkillIndex = 0;
             }
@@ -35,11 +36,11 @@ public class ActiveSkill : MonoBehaviour
                 SkillIndex++;
             }
         }
-        else if (wheelInput < 0) 
+        else if (wheelInput < 0)
         {
             if (SkillIndex <= 0)
             {
-                SkillIndex = 2;
+                SkillIndex = 1;
             }
             else
             {
